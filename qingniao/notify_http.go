@@ -1,15 +1,15 @@
 package qingniao
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
+	`encoding/json`
+	`fmt`
+	`net/http`
 
-	"github.com/go-resty/resty/v2"
-	log "github.com/sirupsen/logrus"
-	"github.com/storezhang/gox"
+	`github.com/go-resty/resty/v2`
+	log `github.com/sirupsen/logrus`
+	`github.com/storezhang/gox`
 
-	class100 "github.com/class100/sdk-go"
+	`github.com/class100/sdk-go`
 )
 
 // NotifyHttp Http通知

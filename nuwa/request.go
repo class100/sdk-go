@@ -1,9 +1,9 @@
 package nuwa
 
 import (
-	"encoding/json"
+	`encoding/json`
 
-	class100 "github.com/class100/sdk-go"
+	`github.com/class100/sdk-go`
 )
 
 // Request 女娲打包请求

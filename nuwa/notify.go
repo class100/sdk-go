@@ -1,7 +1,7 @@
 package nuwa
 
 import (
-	"github.com/storezhang/transfer"
+	`github.com/storezhang/transfer`
 )
 
 type (

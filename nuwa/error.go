@@ -1,7 +1,7 @@
 package nuwa
 
 import (
-	"github.com/storezhang/gox"
+	`github.com/storezhang/gox`
 )
 
 // ErrorNotSupportPackage 不支持的打包类型

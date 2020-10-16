@@ -1,7 +1,7 @@
 package qingniao
 
 import (
-	"github.com/storezhang/gox"
+	`github.com/storezhang/gox`
 )
 
 // ErrorNotSupportNotify 不支持的通知类型

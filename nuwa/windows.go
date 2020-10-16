@@ -1,9 +1,9 @@
 package nuwa
 
 import (
-	"encoding/json"
+	`encoding/json`
 
-	"github.com/storezhang/transfer"
+	`github.com/storezhang/transfer`
 )
 
 // Windows Windows打包信息
