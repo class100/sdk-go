@@ -41,7 +41,7 @@ func (n *NotifyReq) UnmarshalJSON(data []byte) (err error) {
 	}
 	switch n.Type {
 	case NotifyTypeHttp:
-		jwt := NotifyHttp{}
+		jwt := Http{}
 		if err = json.Unmarshal(rawMsg, &jwt); err != nil {
 			return
 		}
