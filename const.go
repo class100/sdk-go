@@ -1,7 +1,7 @@
 package class100
 
 import (
-	"github.com/storezhang/gox"
+	`github.com/storezhang/gox`
 )
 
 const (

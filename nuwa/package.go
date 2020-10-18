@@ -1,20 +1,20 @@
 package nuwa
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
-	"time"
+	`encoding/json`
+	`fmt`
+	`os`
+	`path/filepath`
+	`strconv`
+	`time`
 
-	"github.com/go-playground/validator/v10"
-	log "github.com/sirupsen/logrus"
-	"github.com/storezhang/gox"
-	"github.com/storezhang/replace"
-	"github.com/storezhang/transfer"
+	`github.com/go-playground/validator/v10`
+	log `github.com/sirupsen/logrus`
+	`github.com/storezhang/gox`
+	`github.com/storezhang/replace`
+	`github.com/storezhang/transfer`
 
-	class100 "github.com/class100/sdk-go"
+	`github.com/class100/sdk-go`
 )
 
 const (

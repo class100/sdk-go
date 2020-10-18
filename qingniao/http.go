@@ -1,12 +1,12 @@
 package qingniao
 
 import (
-	"encoding/json"
-	"fmt"
+	`encoding/json`
+	`fmt`
 
-	"github.com/storezhang/gox"
+	`github.com/storezhang/gox`
 
-	class100 "github.com/class100/sdk-go"
+	`github.com/class100/sdk-go`
 )
 
 // Http Http通知
