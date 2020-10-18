@@ -10,8 +10,8 @@ type Voice struct {
 	To string `json:"to" validate:"required"`
 }
 
-// NewVoiceNotify 修建新的Voice类型的通知
-func NewVoiceNotify(to string, maxRetry int, data interface{}) Notify {
+// NewVoiceNotify 创建新的语音通知
+func NewVoiceNotify(to string, maxRetry int, data interface{}) (notify Notify, err error) {
 	return NewNotify(NotifyTypeVoice, maxRetry, Voice{
 		To: to,
 	}, data)

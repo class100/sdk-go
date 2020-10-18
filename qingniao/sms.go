@@ -10,8 +10,8 @@ type Sms struct {
 	To string `json:"to" validate:"required"`
 }
 
-// NewSmsNotify 修建新的Sms类型的通知
-func NewSmsNotify(to string, maxRetry int, data interface{}) Notify {
+// NewSmsNotify 创建新的短信通知
+func NewSmsNotify(to string, maxRetry int, data interface{}) (notify Notify, err error) {
 	return NewNotify(NotifyTypeSms, maxRetry, Sms{
 		To: to,
 	}, data)
