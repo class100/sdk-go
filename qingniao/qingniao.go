@@ -1,16 +1,16 @@
 package qingniao
 
 import (
-	`encoding/json`
-	`fmt`
-	`net/http`
+	"encoding/json"
+	"fmt"
+	"net/http"
 
-	`github.com/go-resty/resty/v2`
-	`github.com/mcuadros/go-defaults`
-	log `github.com/sirupsen/logrus`
-	`github.com/storezhang/gox`
+	"github.com/go-resty/resty/v2"
+	"github.com/mcuadros/go-defaults"
+	log "github.com/sirupsen/logrus"
+	"github.com/storezhang/gox"
 
-	`github.com/class100/sdk-go`
+	"github.com/class100/sdk-go"
 )
 
 type (
@@ -34,16 +34,16 @@ func New(endpoint string, accessKey string, secretKey string) *Client {
 	}
 }
 
-func (c *Client) Notify(nr NotifyReq, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
+func (c *Client) Notify(notify Notify, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
 	// 设置默认值
 	defaults.SetDefaults(c)
 	// 设置默认值
-	defaults.SetDefaults(nr)
+	defaults.SetDefaults(notify)
 
 	// 发送请求
 	var qingniaoRsp *resty.Response
 
-	if qingniaoRsp, err = class100.NewResty().SetBody(Request{Notify: nr, Request: class100.Request{Channel: channel}}).
+	if qingniaoRsp, err = class100.NewResty().SetBody(Request{Notify: notify, Request: class100.Request{Channel: channel}}).
 		SetResult(&rsp).
 		Post(c.parseUrl("notifies", version)); nil != err {
 		log.WithFields(log.Fields{

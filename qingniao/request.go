@@ -1,9 +1,9 @@
 package qingniao
 
 import (
-	`encoding/json`
+	"encoding/json"
 
-	`github.com/class100/sdk-go`
+	"github.com/class100/sdk-go"
 )
 
 // Request 青鸟请求
@@ -11,7 +11,7 @@ type Request struct {
 	class100.Request
 
 	// Notify 请求
-	Notify NotifyReq `json:"notify" validate:"required,structonly"`
+	Notify Notify `json:"notify" validate:"required,structonly"`
 }
 
 func (r Request) String() string {

@@ -1,16 +1,16 @@
 package nuwa
 
 import (
-	`encoding/json`
-	`fmt`
-	`net/http`
+	"encoding/json"
+	"fmt"
+	"net/http"
 
-	`github.com/go-resty/resty/v2`
-	`github.com/mcuadros/go-defaults`
-	log `github.com/sirupsen/logrus`
-	`github.com/storezhang/gox`
+	"github.com/go-resty/resty/v2"
+	"github.com/mcuadros/go-defaults"
+	log "github.com/sirupsen/logrus"
+	"github.com/storezhang/gox"
 
-	`github.com/class100/sdk-go`
+	"github.com/class100/sdk-go"
 )
 
 const (
@@ -55,7 +55,7 @@ func (c Client) parseUrl(path string, version class100.ApiVersion) (url string) 
 	return
 }
 
-func (c *Client) Package(pr PackageReq, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
+func (c *Client) Package(pr Package, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
 	// 设置默认值
 	defaults.SetDefaults(c)
 	// 设置默认值

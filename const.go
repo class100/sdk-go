@@ -1,7 +1,7 @@
 package class100
 
 import (
-	`github.com/storezhang/gox`
+	"github.com/storezhang/gox"
 )
 
 const (
@@ -19,6 +19,8 @@ const (
 
 	// MaxRetryTimes 最大重试次数
 	MaxRetryTimes int = 100
+	// DefaultRetryTimes 默认重试次数
+	DefaultRetryTimes int = 6
 )
 
 const (

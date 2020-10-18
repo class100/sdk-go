@@ -1,20 +1,20 @@
 package nuwa
 
 import (
-	`encoding/json`
-	`fmt`
-	`os`
-	`path/filepath`
-	`strconv`
-	`time`
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+	"time"
 
-	`github.com/go-playground/validator/v10`
-	log `github.com/sirupsen/logrus`
-	`github.com/storezhang/gox`
-	`github.com/storezhang/replace`
-	`github.com/storezhang/transfer`
+	"github.com/go-playground/validator/v10"
+	log "github.com/sirupsen/logrus"
+	"github.com/storezhang/gox"
+	"github.com/storezhang/replace"
+	"github.com/storezhang/transfer"
 
-	class100 `github.com/class100/sdk-go`
+	class100 "github.com/class100/sdk-go"
 )
 
 const (
@@ -33,10 +33,10 @@ type (
 	// PackageType 打包类型
 	PackageType string
 
-	// PackageReq 打包请求
-	PackageReq struct {
-		// PackageType 打包类型
-		PackageType PackageType `json:"packageType" validate:"required,oneof=windows mac android"`
+	// Package 打包请求
+	Package struct {
+		// Type 打包类型
+		Type PackageType `json:"type" validate:"required,oneof=windows mac android"`
 		// MaxRetry 最大重试次数
 		MaxRetry int `default:"3" json:"maxRetry" validate:"omitempty,min=1,max=100"`
 		// SrcFile 源文件
@@ -54,29 +54,29 @@ type (
 	}
 )
 
-func (pr *PackageReq) UnmarshalJSON(data []byte) (err error) {
-	type cloneType PackageReq
+func (p *Package) UnmarshalJSON(data []byte) (err error) {
+	type cloneType Package
 
 	rawMsg := json.RawMessage{}
-	pr.Package = &rawMsg
+	p.Package = &rawMsg
 
-	if err = json.Unmarshal(data, (*cloneType)(pr)); err != nil {
+	if err = json.Unmarshal(data, (*cloneType)(p)); err != nil {
 		return
 	}
 
-	switch pr.PackageType {
+	switch p.Type {
 	case PackageTypeWindows:
-		p := Windows{}
+		windows := Windows{}
 		if err = json.Unmarshal(rawMsg, &p); err != nil {
 			return
 		}
-		pr.Package = p
+		p.Package = windows
 	case PackageTypeAndroid:
-		p := Android{}
+		android := Android{}
 		if err = json.Unmarshal(rawMsg, &p); err != nil {
 			return
 		}
-		pr.Package = p
+		p.Package = android
 	default:
 		err = ErrorNotSupportPackage
 	}
@@ -118,46 +118,46 @@ func (pt PackageType) destFileExt() string {
 	return ext
 }
 
-func (pr *PackageReq) srcFileName(rootPath string) (srcFileName string) {
+func (p *Package) srcFileName(rootPath string) (srcFileName string) {
 	var name string
 
-	switch pr.PackageType {
+	switch p.Type {
 	case PackageTypeWindows:
-		name = pr.Package.(Windows).ProductName
+		name = p.Package.(Windows).ProductName
 	case PackageTypeAndroid:
-		name = pr.Package.(Android).Name[DefaultAppNameKey]
+		name = p.Package.(Android).Name[DefaultAppNameKey]
 	}
 
 	srcFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(
 		fmt.Sprintf("i-%s-%s", name, strconv.FormatInt(time.Now().UnixNano(), 10)),
-		pr.PackageType.srcFileExt(),
+		p.Type.srcFileExt(),
 	))
 
 	return
 }
 
-func (pr *PackageReq) destFileName(rootPath string) (destFileName string) {
+func (p *Package) destFileName(rootPath string) (destFileName string) {
 	var name string
 
-	switch pr.PackageType {
+	switch p.Type {
 	case PackageTypeWindows:
-		name = pr.Package.(Windows).ProductName
+		name = p.Package.(Windows).ProductName
 	case PackageTypeAndroid:
-		name = pr.Package.(Android).Name[DefaultAppNameKey]
+		name = p.Package.(Android).Name[DefaultAppNameKey]
 	}
 
 	destFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(
 		fmt.Sprintf("o-%s-%s", name, strconv.FormatInt(time.Now().UnixNano(), 10)),
-		pr.PackageType.destFileExt(),
+		p.Type.destFileExt(),
 	))
 
 	return
 }
 
-func (pr *PackageReq) packageDir(srcFileName string) (packageDir string) {
+func (p *Package) packageDir(srcFileName string) (packageDir string) {
 	packageDir = gox.GetFileDir(srcFileName)
 
-	switch pr.PackageType {
+	switch p.Type {
 	case PackageTypeWindows:
 		packageDir = fmt.Sprintf("%s-windows", packageDir)
 	case PackageTypeAndroid:
@@ -167,28 +167,28 @@ func (pr *PackageReq) packageDir(srcFileName string) (packageDir string) {
 	return
 }
 
-func (pr *PackageReq) Build(rootPath string, packager Packager) (err error) {
+func (p *Package) Build(rootPath string, packager Packager) (err error) {
 	// 验证基本参数
-	if err = class100.Validate.Struct(pr); nil != err {
+	if err = class100.Validate.Struct(p); nil != err {
 		err = gox.NewCodeError(class100.ErrorCodeValidate, "数据验证错误", err.(validator.ValidationErrors))
 
 		return
 	}
 
-	srcFileName := pr.srcFileName(rootPath)
+	srcFileName := p.srcFileName(rootPath)
 	// 删除源文件，以免影响下一次打包
 	defer func() {
 		err = os.RemoveAll(srcFileName)
 	}()
-	outputFileName := pr.destFileName(rootPath)
-	packageDir := pr.packageDir(srcFileName)
+	outputFileName := p.destFileName(rootPath)
+	packageDir := p.packageDir(srcFileName)
 	// 删除打包目录，以免影响下一次打包
 	defer func() {
 		err = os.RemoveAll(packageDir)
 	}()
 
 	// 下载源文件
-	if err = pr.SrcFile.Download(srcFileName, false); err != nil {
+	if err = p.SrcFile.Download(srcFileName, false); err != nil {
 		return
 	}
 	// 准备
@@ -196,7 +196,7 @@ func (pr *PackageReq) Build(rootPath string, packager Packager) (err error) {
 		return
 	}
 	// 处理文件替换逻辑
-	if err = pr.replace(packageDir); nil != err {
+	if err = p.replace(packageDir); nil != err {
 		return
 	}
 	// 处理应用包修改逻辑
@@ -208,7 +208,7 @@ func (pr *PackageReq) Build(rootPath string, packager Packager) (err error) {
 		return
 	}
 	// 上传打包好的文件
-	if err = pr.DestFile.Upload(outputFileName); err != nil {
+	if err = p.DestFile.Upload(outputFileName); err != nil {
 		return
 	}
 
@@ -223,8 +223,8 @@ func (pr *PackageReq) Build(rootPath string, packager Packager) (err error) {
 	return
 }
 
-func (pr *PackageReq) replace(packageDir string) (err error) {
-	for _, r := range pr.Replaces {
+func (p *Package) replace(packageDir string) (err error) {
+	for _, r := range p.Replaces {
 		if err = r.Replace(packageDir); nil != err {
 			break
 		}
