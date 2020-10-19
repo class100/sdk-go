@@ -4,6 +4,8 @@ import (
 	`encoding/json`
 	`fmt`
 	`net/http`
+	libUrl `net/url`
+	`strings`
 
 	`github.com/go-resty/resty/v2`
 	`github.com/mcuadros/go-defaults`
@@ -19,7 +21,7 @@ type (
 		class100.Client
 
 		// Endpoint 地址
-		Endpoint string `default:"https://nuwa.class100.com" json:"endpoint"`
+		Endpoint string `default:"https://qingniao.class100.com" json:"endpoint"`
 	}
 )
 
@@ -34,7 +36,7 @@ func New(endpoint string, accessKey string, secretKey string) *Client {
 	}
 }
 
-func (c *Client) Notify(notify Notify, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
+func (c *Client) Notify(notify *Notify, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
 	// 设置默认值
 	defaults.SetDefaults(c)
 	// 设置默认值
@@ -45,18 +47,18 @@ func (c *Client) Notify(notify Notify, channel class100.Channel, version class10
 
 	if qingniaoRsp, err = class100.NewResty().SetBody(Request{Notify: notify, Request: class100.Request{Channel: channel}}).
 		SetResult(&rsp).
-		Post(c.parseUrl("notifies", version)); nil != err {
+		Post(c.parseUrl(class100.ApiNotifyCreate, nil, version)); nil != err {
 		log.WithFields(log.Fields{
-			"nuwa":  c,
-			"body":  class100.RestyStringBody(qingniaoRsp),
-			"error": err,
+			"qingniao": c,
+			"body":     class100.RestyStringBody(qingniaoRsp),
+			"error":    err,
 		}).Error("提交打包请求出错")
 
 		return
 	}
 
 	if http.StatusAccepted != qingniaoRsp.StatusCode() {
-		err = gox.NewCodeError(gox.ErrorCode(qingniaoRsp.StatusCode()), "提交打包请求出错", qingniaoRsp.String())
+		err = gox.NewCodeError(gox.ErrorCode(qingniaoRsp.StatusCode()), "提交通知请求出错", qingniaoRsp.String())
 
 		return
 	}
@@ -70,11 +72,18 @@ func (c Client) String() string {
 	return string(jsonBytes)
 }
 
-func (c *Client) parseUrl(path string, version class100.ApiVersion) (url string) {
+func (c *Client) parseUrl(path string, pathParams map[string]string, version class100.ApiVersion) (url string) {
 	if class100.ApiVersionDefault == version {
 		url = fmt.Sprintf("%s/api/%s", c.Endpoint, path)
 	} else {
 		url = fmt.Sprintf("%s/api/%s/%s", c.Endpoint, version, path)
+	}
+
+	// 处理路径参数
+	if 0 < len(pathParams) {
+		for param, value := range pathParams {
+			url = strings.Replace(url, fmt.Sprintf("{%s}", param), libUrl.PathEscape(value), -1)
+		}
 	}
 
 	return
