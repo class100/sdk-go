@@ -47,18 +47,46 @@ type (
 		Replaces []replace.Replace `json:"replaces" validate:"omitempty,dive"`
 		// Notify 通知
 		Notify Notify `json:"notify" validate:"omitempty,structonly"`
-		// Package 打包数据
-		Package interface{} `json:"package" validate:"required"`
+		// Packager 真正的打包者
+		Packager interface{} `json:"packager" validate:"required"`
 		// Payload 透传数据，在Notify时原样提交
-		Payload map[string]string `json:"payload"`
+		Payload []byte `json:"payload"`
 	}
 )
+
+// NewPackage 创建一个打包
+func NewPackage(
+	packageType PackageType,
+	maxRetry int,
+	srcFile transfer.File, destFile transfer.File,
+	notify Notify,
+	packager interface{}, payload interface{},
+	replaces ...replace.Replace,
+) (pkg *Package, err error) {
+	var jsonBytes []byte
+	if jsonBytes, err = json.Marshal(payload); nil != err {
+		return
+	}
+
+	pkg = &Package{
+		Type:     packageType,
+		MaxRetry: maxRetry,
+		SrcFile:  srcFile,
+		DestFile: destFile,
+		Replaces: replaces,
+		Notify:   notify,
+		Packager: packager,
+		Payload:  jsonBytes,
+	}
+
+	return
+}
 
 func (p *Package) UnmarshalJSON(data []byte) (err error) {
 	type cloneType Package
 
 	rawMsg := json.RawMessage{}
-	p.Package = &rawMsg
+	p.Packager = &rawMsg
 
 	if err = json.Unmarshal(data, (*cloneType)(p)); err != nil {
 		return
@@ -70,13 +98,13 @@ func (p *Package) UnmarshalJSON(data []byte) (err error) {
 		if err = json.Unmarshal(rawMsg, &p); err != nil {
 			return
 		}
-		p.Package = windows
+		p.Packager = windows
 	case PackageTypeAndroid:
 		android := Android{}
 		if err = json.Unmarshal(rawMsg, &p); err != nil {
 			return
 		}
-		p.Package = android
+		p.Packager = android
 	default:
 		err = ErrorNotSupportPackage
 	}
@@ -123,9 +151,9 @@ func (p *Package) srcFileName(rootPath string) (srcFileName string) {
 
 	switch p.Type {
 	case PackageTypeWindows:
-		name = p.Package.(Windows).ProductName
+		name = p.Packager.(Windows).ProductName
 	case PackageTypeAndroid:
-		name = p.Package.(Android).Name[DefaultAppNameKey]
+		name = p.Packager.(Android).Name[DefaultAppNameKey]
 	}
 
 	srcFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(
@@ -141,9 +169,9 @@ func (p *Package) destFileName(rootPath string) (destFileName string) {
 
 	switch p.Type {
 	case PackageTypeWindows:
-		name = p.Package.(Windows).ProductName
+		name = p.Packager.(Windows).ProductName
 	case PackageTypeAndroid:
-		name = p.Package.(Android).Name[DefaultAppNameKey]
+		name = p.Packager.(Android).Name[DefaultAppNameKey]
 	}
 
 	destFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(

@@ -3,7 +3,10 @@ package nuwa
 import (
 	`encoding/json`
 
+	`github.com/storezhang/replace`
 	`github.com/storezhang/transfer`
+
+	`github.com/class100/sdk-go`
 )
 
 const (
@@ -40,6 +43,29 @@ type (
 		Sign AndroidAppSign `json:"sign"`
 	}
 )
+
+// NewSimpleAndroidPackage 创建一个简单的Android打包
+func NewSimpleAndroidPackage(
+	android Android,
+	srcFile transfer.File, destFile transfer.File,
+	notify Notify,
+	payload interface{},
+	replaces ...replace.Replace,
+) (pkg *Package, err error) {
+	return NewAndroidPackage(android, class100.DefaultRetryTimes, srcFile, destFile, notify, payload, replaces...)
+}
+
+// NewAndroidPackage 创建一个Android打包
+func NewAndroidPackage(
+	android Android,
+	maxRetry int,
+	srcFile transfer.File, destFile transfer.File,
+	notify Notify,
+	payload interface{},
+	replaces ...replace.Replace,
+) (pkg *Package, err error) {
+	return NewPackage(PackageTypeAndroid, maxRetry, srcFile, destFile, notify, android, payload, replaces...)
+}
 
 func (a Android) String() string {
 	jsonBytes, _ := json.MarshalIndent(a, "", "    ")

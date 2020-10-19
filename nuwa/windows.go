@@ -3,7 +3,10 @@ package nuwa
 import (
 	`encoding/json`
 
+	`github.com/storezhang/replace`
 	`github.com/storezhang/transfer`
+
+	`github.com/class100/sdk-go`
 )
 
 // Windows Windows打包信息
@@ -30,6 +33,29 @@ type Windows struct {
 	UninstallMessage string `json:"uninstallMessage" validate:"omitempty"`
 	// 卸载完成是的提示语句
 	UninstallFinishMessage string `json:"uninstallFinishMessage" validate:"omitempty"`
+}
+
+// NewSimpleWindowsPackage 创建一个简单的Windows打包
+func NewSimpleWindowsPackage(
+	windows Windows,
+	srcFile transfer.File, destFile transfer.File,
+	notify Notify,
+	payload interface{},
+	replaces ...replace.Replace,
+) (pkg *Package, err error) {
+	return NewWindowsPackage(windows, class100.DefaultRetryTimes, srcFile, destFile, notify, payload, replaces...)
+}
+
+// NewWindowsPackage 创建一个Windows打包
+func NewWindowsPackage(
+	windows Windows,
+	maxRetry int,
+	srcFile transfer.File, destFile transfer.File,
+	notify Notify,
+	payload interface{},
+	replaces ...replace.Replace,
+) (pkg *Package, err error) {
+	return NewPackage(PackageTypeWindows, maxRetry, srcFile, destFile, notify, windows, payload, replaces...)
 }
 
 func (w Windows) String() string {
