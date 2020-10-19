@@ -18,19 +18,19 @@ type Http struct {
 }
 
 // NewSimpleJWTNotify 创建简单JWT通知
-func NewSimpleJWTNotify(url string, scheme string, token string) (notify Notify, err error) {
+func NewSimpleJWTNotify(url string, scheme string, token string) (notify *Notify, err error) {
 	return NewJWTNotify(url, scheme, token, class100.DefaultRetryTimes, nil)
 }
 
 // NewJWTNotify 创建新的JWT通知
-func NewJWTNotify(url string, scheme string, token string, maxRetry int, data interface{}) (notify Notify, err error) {
+func NewJWTNotify(url string, scheme string, token string, maxRetry int, data interface{}) (notify *Notify, err error) {
 	return NewHttpNotify(url, map[string]string{
 		gox.HeaderAuthorization: fmt.Sprintf("%s %s", scheme, token),
 	}, maxRetry, data)
 }
 
 // NewHttpNotify 创建新的Http通知
-func NewHttpNotify(url string, headers map[string]string, maxRetry int, data interface{}) (notify Notify, err error) {
+func NewHttpNotify(url string, headers map[string]string, maxRetry int, data interface{}) (notify *Notify, err error) {
 	return NewNotify(NotifyTypeHttp, maxRetry, Http{
 		Url:     url,
 		Headers: headers,

@@ -50,7 +50,7 @@ type (
 		// Package 打包数据
 		Package interface{} `json:"package" validate:"required"`
 		// Payload 透传数据，在Notify时原样提交
-		Payload []byte `json:"payload"`
+		Payload map[string]string `json:"payload"`
 	}
 )
 

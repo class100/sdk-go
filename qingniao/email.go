@@ -17,14 +17,14 @@ type Email struct {
 }
 
 // NewEmailNotify 创建新的邮件通知
-func NewEmailNotify(to string, maxRetry int, data interface{}) (notify Notify, err error) {
+func NewEmailNotify(to string, maxRetry int, data interface{}) (notify *Notify, err error) {
 	return NewNotify(NotifyTypeEmail, maxRetry, Email{
 		To: to,
 	}, data)
 }
 
-func (s Email) String() string {
-	jsonBytes, _ := json.MarshalIndent(s, "", "    ")
+func (e Email) String() string {
+	jsonBytes, _ := json.MarshalIndent(e, "", "    ")
 
 	return string(jsonBytes)
 }

@@ -35,18 +35,18 @@ type (
 )
 
 // NewSimpleNotify 创建简单的通知
-func NewSimpleNotify(notifyType NotifyType, notifier interface{}, data interface{}) (notify Notify, err error) {
+func NewSimpleNotify(notifyType NotifyType, notifier interface{}, data interface{}) (notify *Notify, err error) {
 	return NewNotify(notifyType, class100.DefaultRetryTimes, notifier, data)
 }
 
 // NewNotify 创建一个新的通知
-func NewNotify(notifyType NotifyType, maxRetry int, notifier interface{}, data interface{}) (notify Notify, err error) {
+func NewNotify(notifyType NotifyType, maxRetry int, notifier interface{}, data interface{}) (notify *Notify, err error) {
 	var jsonBytes []byte
 	if jsonBytes, err = json.Marshal(data); nil != err {
 		return
 	}
 
-	notify = Notify{
+	notify = &Notify{
 		Type:     notifyType,
 		MaxRetry: maxRetry,
 		Notifier: notifier,

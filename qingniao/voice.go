@@ -11,14 +11,14 @@ type Voice struct {
 }
 
 // NewVoiceNotify 创建新的语音通知
-func NewVoiceNotify(to string, maxRetry int, data interface{}) (notify Notify, err error) {
+func NewVoiceNotify(to string, maxRetry int, data interface{}) (notify *Notify, err error) {
 	return NewNotify(NotifyTypeVoice, maxRetry, Voice{
 		To: to,
 	}, data)
 }
 
-func (s Voice) String() string {
-	jsonBytes, _ := json.MarshalIndent(s, "", "    ")
+func (v Voice) String() string {
+	jsonBytes, _ := json.MarshalIndent(v, "", "    ")
 
 	return string(jsonBytes)
 }
