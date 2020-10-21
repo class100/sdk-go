@@ -55,16 +55,16 @@ func (c Client) parseUrl(path string, version class100.ApiVersion) (url string) 
 	return
 }
 
-func (c *Client) Package(pr Package, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
+func (c *Client) Package(pkg *Package, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
 	// 设置默认值
 	defaults.SetDefaults(c)
 	// 设置默认值
-	defaults.SetDefaults(pr)
+	defaults.SetDefaults(pkg)
 
 	// 发送请求
 	var nuwaRsp *resty.Response
 
-	if nuwaRsp, err = class100.NewResty().SetBody(Request{Package: pr, Request: class100.Request{Channel: channel}}).
+	if nuwaRsp, err = class100.NewResty().SetBody(Request{Package: pkg, Request: class100.Request{Channel: channel}}).
 		SetResult(&rsp).
 		Post(c.parseUrl("packages", version)); nil != err {
 		log.WithFields(log.Fields{
