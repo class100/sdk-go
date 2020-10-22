@@ -49,10 +49,9 @@ func NewSimpleAndroidPackage(
 	android Android,
 	srcFile transfer.File, destFile transfer.File,
 	notify Notify,
-	payload interface{},
 	replaces ...replace.Replace,
-) (pkg *Package, err error) {
-	return NewAndroidPackage(android, class100.DefaultRetryTimes, srcFile, destFile, notify, payload, replaces...)
+) *Package {
+	return NewAndroidPackage(android, class100.DefaultRetryTimes, srcFile, destFile, notify, replaces...)
 }
 
 // NewAndroidPackage 创建一个Android打包
@@ -61,10 +60,9 @@ func NewAndroidPackage(
 	maxRetry int,
 	srcFile transfer.File, destFile transfer.File,
 	notify Notify,
-	payload interface{},
 	replaces ...replace.Replace,
-) (pkg *Package, err error) {
-	return NewPackage(PackageTypeAndroid, maxRetry, srcFile, destFile, notify, android, payload, replaces...)
+) *Package {
+	return NewPackage(PackageTypeAndroid, maxRetry, srcFile, destFile, notify, android, replaces...)
 }
 
 func (a Android) String() string {

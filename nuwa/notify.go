@@ -14,7 +14,7 @@ type (
 		// Scheme
 		Scheme string `default:"Bearer" json:"scheme" validate:"required"`
 		// Token JWT验证授权码
-		Token string `json:"token" validate:"token"`
+		Token string `json:"token" validate:"required"`
 		// Payload 透传数据
 		Payload []byte `json:"payload"`
 	}
@@ -47,4 +47,10 @@ func NewNotify(url string, scheme string, token string, payload interface{}) (no
 	}
 
 	return
+}
+
+func (n Notify) String() string {
+	jsonBytes, _ := json.MarshalIndent(n, "", "    ")
+
+	return string(jsonBytes)
 }

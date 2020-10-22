@@ -40,10 +40,9 @@ func NewSimpleWindowsPackage(
 	windows Windows,
 	srcFile transfer.File, destFile transfer.File,
 	notify Notify,
-	payload interface{},
 	replaces ...replace.Replace,
-) (pkg *Package, err error) {
-	return NewWindowsPackage(windows, class100.DefaultRetryTimes, srcFile, destFile, notify, payload, replaces...)
+) *Package {
+	return NewWindowsPackage(windows, class100.DefaultRetryTimes, srcFile, destFile, notify, replaces...)
 }
 
 // NewWindowsPackage 创建一个Windows打包
@@ -52,10 +51,9 @@ func NewWindowsPackage(
 	maxRetry int,
 	srcFile transfer.File, destFile transfer.File,
 	notify Notify,
-	payload interface{},
 	replaces ...replace.Replace,
-) (pkg *Package, err error) {
-	return NewPackage(PackageTypeWindows, maxRetry, srcFile, destFile, notify, windows, payload, replaces...)
+) *Package {
+	return NewPackage(PackageTypeWindows, maxRetry, srcFile, destFile, notify, windows, replaces...)
 }
 
 func (w Windows) String() string {

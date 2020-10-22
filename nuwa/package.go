@@ -38,7 +38,7 @@ type (
 		// Type 打包类型
 		Type PackageType `json:"type" validate:"required,oneof=windows mac android"`
 		// MaxRetry 最大重试次数
-		MaxRetry int `default:"3" json:"maxRetry" validate:"omitempty,min=1,max=100"`
+		MaxRetry int `default:"3" json:"maxRetry" validate:"omitempty,min=1,max=10"`
 		// SrcFile 源文件
 		SrcFile transfer.File `json:"srcFile" validate:"required"`
 		// DestFile 打包后的文件
@@ -49,8 +49,6 @@ type (
 		Notify Notify `json:"notify" validate:"omitempty,structonly"`
 		// Packager 真正的打包者
 		Packager interface{} `json:"packager" validate:"required"`
-		// Payload 透传数据，在Notify时原样提交
-		Payload []byte `json:"payload"`
 	}
 )
 
@@ -60,15 +58,10 @@ func NewPackage(
 	maxRetry int,
 	srcFile transfer.File, destFile transfer.File,
 	notify Notify,
-	packager interface{}, payload interface{},
+	packager interface{},
 	replaces ...replace.Replace,
-) (pkg *Package, err error) {
-	var jsonBytes []byte
-	if jsonBytes, err = json.Marshal(payload); nil != err {
-		return
-	}
-
-	pkg = &Package{
+) *Package {
+	return &Package{
 		Type:     packageType,
 		MaxRetry: maxRetry,
 		SrcFile:  srcFile,
@@ -76,35 +69,52 @@ func NewPackage(
 		Replaces: replaces,
 		Notify:   notify,
 		Packager: packager,
-		Payload:  jsonBytes,
 	}
+}
+
+func (pkg *Package) Tag(channel class100.Channel) (tag string, err error) {
+	switch pkg.Type {
+	case PackageTypeWindows:
+		tag = class100.TagPackageWindows
+	case PackageTypeMac:
+		tag = class100.TagPackageMac
+	case PackageTypeAndroid:
+		tag = class100.TagPackageAndroid
+	case PackageTypeIOS:
+		tag = class100.TagPackageIOS
+	default:
+		err = ErrorNotSupportPackage
+
+		return
+	}
+	tag = fmt.Sprintf("%s-%s", tag, channel)
 
 	return
 }
 
-func (p *Package) UnmarshalJSON(data []byte) (err error) {
+func (pkg *Package) UnmarshalJSON(jsonBytes []byte) (err error) {
 	type cloneType Package
 
 	rawMsg := json.RawMessage{}
-	p.Packager = &rawMsg
+	pkg.Packager = &rawMsg
 
-	if err = json.Unmarshal(data, (*cloneType)(p)); err != nil {
+	if err = json.Unmarshal(jsonBytes, (*cloneType)(pkg)); err != nil {
 		return
 	}
 
-	switch p.Type {
+	switch pkg.Type {
 	case PackageTypeWindows:
 		windows := Windows{}
-		if err = json.Unmarshal(rawMsg, &p); err != nil {
+		if err = json.Unmarshal(rawMsg, &windows); err != nil {
 			return
 		}
-		p.Packager = windows
+		pkg.Packager = windows
 	case PackageTypeAndroid:
 		android := Android{}
-		if err = json.Unmarshal(rawMsg, &p); err != nil {
+		if err = json.Unmarshal(rawMsg, &android); err != nil {
 			return
 		}
-		p.Packager = android
+		pkg.Packager = android
 	default:
 		err = ErrorNotSupportPackage
 	}
@@ -146,46 +156,46 @@ func (pt PackageType) destFileExt() string {
 	return ext
 }
 
-func (p *Package) srcFileName(rootPath string) (srcFileName string) {
+func (pkg *Package) srcFileName(rootPath string) (srcFileName string) {
 	var name string
 
-	switch p.Type {
+	switch pkg.Type {
 	case PackageTypeWindows:
-		name = p.Packager.(Windows).ProductName
+		name = pkg.Packager.(Windows).ProductName
 	case PackageTypeAndroid:
-		name = p.Packager.(Android).Name[DefaultAppNameKey]
+		name = pkg.Packager.(Android).Name[DefaultAppNameKey]
 	}
 
 	srcFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(
 		fmt.Sprintf("i-%s-%s", name, strconv.FormatInt(time.Now().UnixNano(), 10)),
-		p.Type.srcFileExt(),
+		pkg.Type.srcFileExt(),
 	))
 
 	return
 }
 
-func (p *Package) destFileName(rootPath string) (destFileName string) {
+func (pkg *Package) destFileName(rootPath string) (destFileName string) {
 	var name string
 
-	switch p.Type {
+	switch pkg.Type {
 	case PackageTypeWindows:
-		name = p.Packager.(Windows).ProductName
+		name = pkg.Packager.(Windows).ProductName
 	case PackageTypeAndroid:
-		name = p.Packager.(Android).Name[DefaultAppNameKey]
+		name = pkg.Packager.(Android).Name[DefaultAppNameKey]
 	}
 
 	destFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(
 		fmt.Sprintf("o-%s-%s", name, strconv.FormatInt(time.Now().UnixNano(), 10)),
-		p.Type.destFileExt(),
+		pkg.Type.destFileExt(),
 	))
 
 	return
 }
 
-func (p *Package) packageDir(srcFileName string) (packageDir string) {
+func (pkg *Package) packageDir(srcFileName string) (packageDir string) {
 	packageDir = gox.GetFileDir(srcFileName)
 
-	switch p.Type {
+	switch pkg.Type {
 	case PackageTypeWindows:
 		packageDir = fmt.Sprintf("%s-windows", packageDir)
 	case PackageTypeAndroid:
@@ -195,68 +205,118 @@ func (p *Package) packageDir(srcFileName string) (packageDir string) {
 	return
 }
 
-func (p *Package) Build(rootPath string, packager Packager) (err error) {
+func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 	// 验证基本参数
-	if err = class100.Validate.Struct(p); nil != err {
+	if err = class100.Validate.Struct(pkg); nil != err {
 		err = gox.NewCodeError(class100.ErrorCodeValidate, "数据验证错误", err.(validator.ValidationErrors))
 
 		return
 	}
 
-	srcFileName := p.srcFileName(rootPath)
+	srcFilename := pkg.srcFileName(rootPath)
 	// 删除源文件，以免影响下一次打包
 	defer func() {
-		err = os.RemoveAll(srcFileName)
+		if removeErr := os.RemoveAll(srcFilename); nil != removeErr {
+			err = removeErr
+		}
 	}()
-	outputFileName := p.destFileName(rootPath)
-	packageDir := p.packageDir(srcFileName)
+
+	outputFilename := pkg.destFileName(rootPath)
+	defer func() {
+		if removeErr := os.RemoveAll(outputFilename); nil != removeErr {
+			err = removeErr
+		}
+	}()
+
+	packageDir := pkg.packageDir(srcFilename)
 	// 删除打包目录，以免影响下一次打包
 	defer func() {
-		err = os.RemoveAll(packageDir)
+		if removeErr := os.RemoveAll(packageDir); nil != removeErr {
+			err = removeErr
+		}
 	}()
 
 	// 下载源文件
-	if err = p.SrcFile.Download(srcFileName, false); err != nil {
+	if err = pkg.SrcFile.Download(srcFilename, false); err != nil {
+		log.WithFields(log.Fields{
+			"file":  pkg.SrcFile,
+			"error": err,
+		}).Error("下载未打包源文件出错")
+
 		return
 	}
+	log.WithFields(log.Fields{"file": pkg.SrcFile}).Info("下载未打包源文件成功")
+
 	// 准备
-	if err = packager.Decode(srcFileName, packageDir); nil != err {
+	if err = packager.Decode(srcFilename, packageDir); nil != err {
+		log.WithFields(log.Fields{
+			"file":  pkg.SrcFile,
+			"error": err,
+		}).Error("解码未打包源文件出错")
+
 		return
 	}
+	log.WithFields(log.Fields{"file": pkg.SrcFile}).Info("解码未打包源文件成功")
+
 	// 处理文件替换逻辑
-	if err = p.replace(packageDir); nil != err {
+	if err = pkg.replace(packageDir); nil != err {
+		log.WithFields(log.Fields{
+			"replaces": pkg.Replaces,
+			"error":    err,
+		}).Error("替换打包文件出错")
+
 		return
 	}
+	log.WithFields(log.Fields{"replaces": pkg.Replaces}).Info("替换打包文件成功")
+
 	// 处理应用包修改逻辑
 	if err = packager.Modify(packageDir); nil != err {
-		return
-	}
-	// 打包
-	if err = packager.Build(packageDir, outputFileName); nil != err {
-		return
-	}
-	// 上传打包好的文件
-	if err = p.DestFile.Upload(outputFileName); err != nil {
-		return
-	}
-
-	// 删除打包好的文件
-	if removeErr := os.Remove(outputFileName); nil != removeErr {
 		log.WithFields(log.Fields{
-			"fileName": outputFileName,
-			"error":    removeErr,
-		}).Warn("删除打包好的文件出错")
+			"package": pkg,
+			"error":   err,
+		}).Error("修改打包文件出错")
+
+		return
 	}
+	log.WithFields(log.Fields{"package": pkg}).Info("修改打包文件成功")
+
+	// 打包
+	if err = packager.Build(packageDir, outputFilename); nil != err {
+		log.WithFields(log.Fields{
+			"package": pkg,
+			"error":   err,
+		}).Error("编译打包文件出错")
+
+		return
+	}
+	log.WithFields(log.Fields{"package": pkg}).Info("编译打包文件成功")
+
+	// 上传打包好的文件
+	if err = pkg.DestFile.Upload(outputFilename); err != nil {
+		log.WithFields(log.Fields{
+			"file":  pkg.DestFile,
+			"error": err,
+		}).Error("上传已打包文件出错")
+
+		return
+	}
+	log.WithFields(log.Fields{"file": pkg.DestFile}).Info("上传已打包文件成功")
 
 	return
 }
 
-func (p *Package) replace(packageDir string) (err error) {
-	for _, r := range p.Replaces {
+func (pkg *Package) replace(packageDir string) (err error) {
+	for _, r := range pkg.Replaces {
 		if err = r.Replace(packageDir); nil != err {
 			break
 		}
 	}
 
 	return
+}
+
+func (pkg Package) String() string {
+	jsonBytes, _ := json.MarshalIndent(pkg, "", "    ")
+
+	return string(jsonBytes)
 }
