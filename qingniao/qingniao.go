@@ -36,7 +36,7 @@ func New(endpoint string, accessKey string, secretKey string) *Client {
 	}
 }
 
-func (c *Client) Notify(notify Notify, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
+func (c *Client) Notify(notify *Notify, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
 	// 设置默认值
 	defaults.SetDefaults(c)
 	// 设置默认值

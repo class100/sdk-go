@@ -11,7 +11,7 @@ type Sms struct {
 }
 
 // NewSmsNotify 创建新的短信通知
-func NewSmsNotify(to string, maxRetry int, data interface{}) Notify {
+func NewSmsNotify(to string, maxRetry int, data interface{}) *Notify {
 	return NewNotify(NotifyTypeSms, maxRetry, Sms{
 		To: to,
 	}, data)

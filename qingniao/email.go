@@ -17,7 +17,7 @@ type Email struct {
 }
 
 // NewEmailNotify 创建新的邮件通知
-func NewEmailNotify(to string, maxRetry int, data interface{}) Notify {
+func NewEmailNotify(to string, maxRetry int, data interface{}) *Notify {
 	return NewNotify(NotifyTypeEmail, maxRetry, Email{
 		To: to,
 	}, data)
