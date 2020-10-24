@@ -30,30 +30,23 @@ type (
 		// Notifier 真正的通知者
 		Notifier interface{} `json:"notifier" validate:"required"`
 		// Data 数据
-		Data []byte `json:"data"`
+		Data interface{} `json:"data"`
 	}
 )
 
 // NewSimpleNotify 创建简单的通知
-func NewSimpleNotify(notifyType NotifyType, notifier interface{}, data interface{}) (notify *Notify, err error) {
+func NewSimpleNotify(notifyType NotifyType, notifier interface{}, data interface{}) Notify {
 	return NewNotify(notifyType, class100.DefaultRetryTimes, notifier, data)
 }
 
 // NewNotify 创建一个新的通知
-func NewNotify(notifyType NotifyType, maxRetry int, notifier interface{}, data interface{}) (notify *Notify, err error) {
-	var jsonBytes []byte
-	if jsonBytes, err = json.Marshal(data); nil != err {
-		return
-	}
-
-	notify = &Notify{
+func NewNotify(notifyType NotifyType, maxRetry int, notifier interface{}, data interface{}) Notify {
+	return Notify{
 		Type:     notifyType,
 		MaxRetry: maxRetry,
 		Notifier: notifier,
-		Data:     jsonBytes,
+		Data:     data,
 	}
-
-	return
 }
 
 func (n *Notify) UnmarshalJSON(data []byte) (err error) {

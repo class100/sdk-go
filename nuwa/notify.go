@@ -11,12 +11,12 @@ type (
 	Notify struct {
 		// Url 回调地址
 		Url string `json:"url" validate:"required"`
-		// Scheme
+		// Scheme JWT的验证前缀
 		Scheme string `default:"Bearer" json:"scheme" validate:"required"`
 		// Token JWT验证授权码
 		Token string `json:"token" validate:"required"`
 		// Payload 透传数据
-		Payload []byte `json:"payload"`
+		Payload interface{} `json:"payload"`
 	}
 
 	// NotifyRequest 回调请求数据
@@ -28,25 +28,18 @@ type (
 		// DestFile 打包后的文件
 		DestFile transfer.File `json:"destFile"`
 		// Payload 透传数据
-		Payload []byte `json:"payload"`
+		Payload interface{} `json:"payload"`
 	}
 )
 
 // NewNotify 创建一个新的通知
-func NewNotify(url string, scheme string, token string, payload interface{}) (notify Notify, err error) {
-	var jsonBytes []byte
-	if jsonBytes, err = json.Marshal(payload); nil != err {
-		return
-	}
-
-	notify = Notify{
+func NewNotify(url string, scheme string, token string, payload interface{}) Notify {
+	return Notify{
 		Url:     url,
 		Scheme:  scheme,
 		Token:   token,
-		Payload: jsonBytes,
+		Payload: payload,
 	}
-
-	return
 }
 
 func (n Notify) String() string {

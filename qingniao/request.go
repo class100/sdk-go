@@ -11,7 +11,7 @@ type Request struct {
 	class100.Request
 
 	// Notify 请求
-	Notify *Notify `json:"notify" validate:"required,structonly"`
+	Notify Notify `json:"notify" validate:"required,structonly"`
 }
 
 func (r Request) String() string {

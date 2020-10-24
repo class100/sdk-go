@@ -55,7 +55,7 @@ func (c Client) parseUrl(path string, version class100.ApiVersion) (url string) 
 	return
 }
 
-func (c *Client) Package(pkg *Package, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
+func (c *Client) Package(pkg Package, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
 	// 设置默认值
 	defaults.SetDefaults(c)
 	// 设置默认值

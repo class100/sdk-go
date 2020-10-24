@@ -11,7 +11,7 @@ type Voice struct {
 }
 
 // NewVoiceNotify 创建新的语音通知
-func NewVoiceNotify(to string, maxRetry int, data interface{}) (notify *Notify, err error) {
+func NewVoiceNotify(to string, maxRetry int, data interface{}) Notify {
 	return NewNotify(NotifyTypeVoice, maxRetry, Voice{
 		To: to,
 	}, data)
