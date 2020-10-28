@@ -166,7 +166,7 @@ func (pkg *Package) srcFileName(rootPath string) (srcFileName string) {
 		name = pkg.Packager.(Android).Name[DefaultAppNameKey]
 	}
 
-	srcFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(
+	srcFileName = filepath.Join(rootPath, gox.GetFilenameWithExt(
 		fmt.Sprintf("i-%s-%s", name, strconv.FormatInt(time.Now().UnixNano(), 10)),
 		pkg.Type.srcFileExt(),
 	))
@@ -184,7 +184,7 @@ func (pkg *Package) destFileName(rootPath string) (destFileName string) {
 		name = pkg.Packager.(Android).Name[DefaultAppNameKey]
 	}
 
-	destFileName = filepath.Join(rootPath, gox.GetFileNameWithExt(
+	destFileName = filepath.Join(rootPath, gox.GetFilenameWithExt(
 		fmt.Sprintf("o-%s-%s", name, strconv.FormatInt(time.Now().UnixNano(), 10)),
 		pkg.Type.destFileExt(),
 	))

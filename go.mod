@@ -7,7 +7,7 @@ require (
 	github.com/go-resty/resty/v2 v2.3.0
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/sirupsen/logrus v1.6.0
-	github.com/storezhang/gox v1.2.6
+	github.com/storezhang/gox v1.2.7
 	github.com/storezhang/replace v1.0.3
 	github.com/storezhang/transfer v1.0.1
 )
