@@ -5,9 +5,6 @@ import (
 )
 
 type (
-	// Channel 通道
-	Channel string
-
 	// ApiVersion API版本
 	ApiVersion string
 

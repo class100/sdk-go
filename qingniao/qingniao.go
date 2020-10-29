@@ -9,6 +9,7 @@ import (
 
 	`github.com/go-resty/resty/v2`
 	`github.com/mcuadros/go-defaults`
+	`github.com/rs/xid`
 	log `github.com/sirupsen/logrus`
 	`github.com/storezhang/gox`
 
@@ -37,6 +38,15 @@ func New(endpoint string, accessKey string, secretKey string) *Client {
 }
 
 func (c *Client) Notify(notify *Notify, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
+	if class100.ChannelSimulation == channel {
+		rsp = Response{
+			Id:  xid.New().String(),
+			Key: xid.New().String(),
+		}
+
+		return
+	}
+
 	// 设置默认值
 	defaults.SetDefaults(c)
 	// 设置默认值
