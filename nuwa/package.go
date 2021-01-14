@@ -174,6 +174,17 @@ func (pkg *Package) srcFileName(rootPath string) (srcFileName string) {
 	return
 }
 
+func (pkg *Package) Name() (name string) {
+	switch pkg.Type {
+	case PackageTypeWindows:
+		name = pkg.Packager.(Windows).ProductName
+	case PackageTypeAndroid:
+		name = pkg.Packager.(Android).Name[DefaultAppNameKey]
+	}
+
+	return
+}
+
 func (pkg *Package) destFileName(rootPath string) (destFileName string) {
 	var name string
 
