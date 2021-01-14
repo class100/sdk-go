@@ -39,7 +39,7 @@ type (
 		// Type 打包类型
 		Type PackageType `json:"type" validate:"required,oneof=windows mac android"`
 		// MaxRetry 最大重试次数
-		MaxRetry int `default:"3" json:"maxRetry" validate:"omitempty,min=1,max=10"`
+		MaxRetry int `default:"10" json:"maxRetry" validate:"omitempty,min=1,max=10"`
 		// SrcFile 源文件
 		SrcFile transfer.File `json:"srcFile" validate:"required"`
 		// DestFile 打包后的文件
