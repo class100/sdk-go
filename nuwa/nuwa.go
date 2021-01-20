@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/class100/core"
 	"github.com/go-resty/resty/v2"
 	"github.com/mcuadros/go-defaults"
 	"github.com/rs/xid"
 	log "github.com/sirupsen/logrus"
 	"github.com/storezhang/gox"
 
-	"github.com/class100/core"
 	"github.com/class100/sdk-go"
 )
 
