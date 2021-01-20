@@ -11,7 +11,7 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/storezhang/gox v1.2.25
 	github.com/storezhang/replace v1.0.7
-	github.com/storezhang/transfer v1.0.3
+	github.com/storezhang/transfer v1.0.5
 )
 
 // replace github.com/storezhang/gox => ../../storezhang/gox
