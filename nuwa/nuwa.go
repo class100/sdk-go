@@ -30,6 +30,8 @@ type (
 
 		// Endpoint 地址
 		Endpoint string `default:"https://nuwa.class100.com" json:"endpoint"`
+		// environment 开发坏境类型
+		environment core.EnvironmentType
 	}
 
 	// PackageStatus 打包结果
@@ -37,7 +39,7 @@ type (
 )
 
 // New 创建一个新的女娲客户端
-func New(endpoint string, accessKey string, secretKey string) *Client {
+func New(endpoint string, environment core.EnvironmentType, accessKey string, secretKey string) *Client {
 	return &Client{
 		Endpoint: endpoint,
 		Client: class100.Client{
@@ -59,10 +61,9 @@ func (c Client) parseUrl(path string, version class100.ApiVersion) (url string) 
 
 func (c *Client) Package(
 	pkg *Package,
-	environment core.EnvironmentType,
 	version class100.ApiVersion,
 ) (rsp Response, err error) {
-	if core.EnvironmentTypeSimulation == environment {
+	if core.EnvironmentTypeSimulation == c.environment {
 		rsp = Response{
 			Id:  xid.New().String(),
 			Key: xid.New().String(),
@@ -83,7 +84,7 @@ func (c *Client) Package(
 		Request{
 			Package: pkg,
 			Request: class100.Request{
-				Environment: environment,
+				Environment: c.environment,
 			},
 		},
 	).SetResult(&rsp).
