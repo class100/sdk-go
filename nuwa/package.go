@@ -73,7 +73,7 @@ func NewPackage(
 	}
 }
 
-func (pkg *Package) Tag(environment core.EnvironmentType) (tag string, err error) {
+func (pkg *Package) Tag(environment core.Environment) (tag string, err error) {
 	switch pkg.Type {
 	case PackageTypeWindows:
 		tag = class100.TagPackageWindows
