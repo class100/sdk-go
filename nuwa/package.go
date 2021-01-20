@@ -73,7 +73,7 @@ func NewPackage(
 	}
 }
 
-func (pkg *Package) Tag(environmentType core.EnvironmentType) (tag string, err error) {
+func (pkg *Package) Tag(environment core.EnvironmentType) (tag string, err error) {
 	switch pkg.Type {
 	case PackageTypeWindows:
 		tag = class100.TagPackageWindows
@@ -88,7 +88,7 @@ func (pkg *Package) Tag(environmentType core.EnvironmentType) (tag string, err e
 
 		return
 	}
-	tag = fmt.Sprintf("%s-%s", tag, environmentType)
+	tag = fmt.Sprintf("%s-%s", tag, environment)
 
 	return
 }
