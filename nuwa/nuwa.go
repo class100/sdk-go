@@ -83,7 +83,7 @@ func (c *Client) Package(
 		Request{
 			Package: pkg,
 			Request: class100.Request{
-				Channel: environmentType,
+				Environment: environmentType,
 			},
 		},
 	).SetResult(&rsp).

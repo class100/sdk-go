@@ -1,13 +1,15 @@
 package class100
 
 import (
-	`encoding/json`
+	"encoding/json"
+
+	"github.com/class100/core"
 )
 
 // Request 请求
 type Request struct {
-	// Channel 请求通道
-	Channel Channel `json:"channel" validate:"required,oneof=dev test prod local"`
+	// Environment 请求通道
+	Environment core.EnvironmentType `json:"channel" validate:"required,oneof=dev test prod local qa"`
 }
 
 func (r Request) String() string {
