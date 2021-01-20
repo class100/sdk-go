@@ -9,7 +9,7 @@ import (
 // Request 请求
 type Request struct {
 	// Environment 环境类型
-	Environment core.Environment `json:"environment" validate:"required,oneof=dev test prod local qa"`
+	Environment core.Environment `json:"environment" validate:"required,oneof=dev test prod local"`
 }
 
 func (r Request) String() string {

@@ -7,6 +7,7 @@ import (
 	libUrl `net/url`
 	`strings`
 
+	`github.com/class100/core`
 	`github.com/go-resty/resty/v2`
 	`github.com/mcuadros/go-defaults`
 	`github.com/rs/xid`
@@ -37,8 +38,8 @@ func New(endpoint string, accessKey string, secretKey string) *Client {
 	}
 }
 
-func (c *Client) Notify(notify *Notify, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
-	if class100.ChannelSimulation == channel {
+func (c *Client) Notify(notify *Notify, environment core.Environment, version class100.ApiVersion) (rsp Response, err error) {
+	if core.EnvironmentSimulation == environment {
 		rsp = Response{
 			Id:  xid.New().String(),
 			Key: xid.New().String(),
@@ -55,7 +56,7 @@ func (c *Client) Notify(notify *Notify, channel class100.Channel, version class1
 	// 发送请求
 	var qingniaoRsp *resty.Response
 
-	if qingniaoRsp, err = class100.NewResty().SetBody(Request{Notify: notify, Request: class100.Request{Channel: channel}}).
+	if qingniaoRsp, err = class100.NewResty().SetBody(Request{Notify: notify, Request: class100.Request{Environment: environment}}).
 		SetResult(&rsp).
 		Post(c.parseUrl(class100.ApiNotifyCreate, nil, version)); nil != err {
 		log.WithFields(log.Fields{

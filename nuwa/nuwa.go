@@ -57,11 +57,7 @@ func (c Client) parseUrl(path string, version class100.ApiVersion) (url string) 
 	return
 }
 
-func (c *Client) Package(
-	pkg *Package,
-	environment core.Environment,
-	version class100.ApiVersion,
-) (rsp Response, err error) {
+func (c *Client) Package(pkg *Package, environment core.Environment, version class100.ApiVersion) (rsp Response, err error) {
 	if core.EnvironmentSimulation == environment {
 		rsp = Response{
 			Id:  xid.New().String(),
@@ -79,14 +75,8 @@ func (c *Client) Package(
 	// 发送请求
 	var nuwaRsp *resty.Response
 
-	if nuwaRsp, err = class100.NewResty().SetBody(
-		Request{
-			Package: pkg,
-			Request: class100.Request{
-				Environment: environment,
-			},
-		},
-	).SetResult(&rsp).
+	if nuwaRsp, err = class100.NewResty().SetBody(Request{Package: pkg, Request: class100.Request{Environment: environment}}).
+		SetResult(&rsp).
 		Post(c.parseUrl("packages", version)); nil != err {
 		log.WithFields(log.Fields{
 			"nuwa":  c,
