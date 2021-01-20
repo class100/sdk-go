@@ -251,24 +251,32 @@ func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 	// 下载源文件
 	if err = pkg.SrcFile.Download(srcFilename, false); err != nil {
 		log.WithFields(log.Fields{
-			"file":  pkg.SrcFile,
-			"error": err,
+			"type":     pkg.SrcFile.Type,
+			"filename": pkg.SrcFile.Filename,
+			"error":    err,
 		}).Error("下载未打包源文件出错")
 
 		return
 	}
-	log.WithFields(log.Fields{"file": pkg.SrcFile}).Info("下载未打包源文件成功")
+	log.WithFields(log.Fields{
+		"type":     pkg.SrcFile.Type,
+		"filename": pkg.SrcFile.Filename,
+	}).Info("下载未打包源文件成功")
 
 	// 准备
 	if err = packager.Decode(srcFilename, packageDir); nil != err {
 		log.WithFields(log.Fields{
-			"file":  pkg.SrcFile,
-			"error": err,
+			"type":     pkg.SrcFile.Type,
+			"filename": pkg.SrcFile.Filename,
+			"error":    err,
 		}).Error("解码未打包源文件出错")
 
 		return
 	}
-	log.WithFields(log.Fields{"file": pkg.SrcFile}).Info("解码未打包源文件成功")
+	log.WithFields(log.Fields{
+		"type":     pkg.SrcFile.Type,
+		"filename": pkg.SrcFile.Filename,
+	}).Info("解码未打包源文件成功")
 
 	// 处理文件替换逻辑
 	if err = pkg.replace(packageDir); nil != err {
@@ -284,35 +292,72 @@ func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 	// 处理应用包修改逻辑
 	if err = packager.Modify(packageDir); nil != err {
 		log.WithFields(log.Fields{
-			"package": pkg,
-			"error":   err,
+			"name":         pkg.Name(),
+			"type":         pkg.Type,
+			"srcFileType":  pkg.SrcFile.Type,
+			"srcFilename":  pkg.SrcFile.Filename,
+			"destFileType": pkg.DestFile.Type,
+			"destFilename": pkg.DestFile.Filename,
+			"notifyUrl":    pkg.Notify.Url,
+			"error":        err,
 		}).Error("修改打包文件出错")
 
 		return
 	}
-	log.WithFields(log.Fields{"package": pkg}).Info("修改打包文件成功")
+	log.WithFields(log.Fields{
+		"name":         pkg.Name(),
+		"type":         pkg.Type,
+		"srcFileType":  pkg.SrcFile.Type,
+		"srcFilename":  pkg.SrcFile.Filename,
+		"destFileType": pkg.DestFile.Type,
+		"destFilename": pkg.DestFile.Filename,
+		"notifyUrl":    pkg.Notify.Url,
+	}).Info("修改打包文件成功")
 
 	// 打包
 	if err = packager.Build(packageDir, outputFilename); nil != err {
 		log.WithFields(log.Fields{
-			"package": pkg,
-			"error":   err,
+			"name":         pkg.Name(),
+			"type":         pkg.Type,
+			"srcFileType":  pkg.SrcFile.Type,
+			"srcFilename":  pkg.SrcFile.Filename,
+			"destFileType": pkg.DestFile.Type,
+			"destFilename": pkg.DestFile.Filename,
+			"notifyUrl":    pkg.Notify.Url,
+			"error":        err,
 		}).Error("编译打包文件出错")
 
 		return
 	}
-	log.WithFields(log.Fields{"package": pkg}).Info("编译打包文件成功")
+	log.WithFields(log.Fields{
+		"name":         pkg.Name(),
+		"type":         pkg.Type,
+		"srcFileType":  pkg.SrcFile.Type,
+		"srcFilename":  pkg.SrcFile.Filename,
+		"destFileType": pkg.DestFile.Type,
+		"destFilename": pkg.DestFile.Filename,
+		"notifyUrl":    pkg.Notify.Url,
+	}).Info("编译打包文件成功")
 
 	// 上传打包好的文件
 	if err = pkg.DestFile.Upload(outputFilename); err != nil {
 		log.WithFields(log.Fields{
-			"file":  pkg.DestFile,
-			"error": err,
+			"name":         pkg.Name(),
+			"type":         pkg.Type,
+			"srcFileType":  pkg.SrcFile.Type,
+			"srcFilename":  pkg.SrcFile.Filename,
+			"destFileType": pkg.DestFile.Type,
+			"destFilename": pkg.DestFile.Filename,
+			"notifyUrl":    pkg.Notify.Url,
+			"error":        err,
 		}).Error("上传已打包文件出错")
 
 		return
 	}
-	log.WithFields(log.Fields{"file": pkg.DestFile}).Info("上传已打包文件成功")
+	log.WithFields(log.Fields{
+		"type":     pkg.DestFile.Type,
+		"filename": pkg.DestFile.Filename,
+	}).Info("上传已打包文件成功")
 
 	return
 }
