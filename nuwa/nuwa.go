@@ -1,17 +1,18 @@
 package nuwa
 
 import (
-	`encoding/json`
-	`fmt`
-	`net/http`
+	"encoding/json"
+	"fmt"
+	"net/http"
 
-	`github.com/go-resty/resty/v2`
-	`github.com/mcuadros/go-defaults`
-	`github.com/rs/xid`
-	log `github.com/sirupsen/logrus`
-	`github.com/storezhang/gox`
+	"github.com/go-resty/resty/v2"
+	"github.com/mcuadros/go-defaults"
+	"github.com/rs/xid"
+	log "github.com/sirupsen/logrus"
+	"github.com/storezhang/gox"
 
-	`github.com/class100/sdk-go`
+	"github.com/class100/core"
+	"github.com/class100/sdk-go"
 )
 
 const (
@@ -56,8 +57,12 @@ func (c Client) parseUrl(path string, version class100.ApiVersion) (url string) 
 	return
 }
 
-func (c *Client) Package(pkg *Package, channel class100.Channel, version class100.ApiVersion) (rsp Response, err error) {
-	if class100.ChannelSimulation == channel {
+func (c *Client) Package(
+	pkg *Package,
+	environmentType core.EnvironmentType,
+	version class100.ApiVersion,
+) (rsp Response, err error) {
+	if core.EnvironmentTypeSimulation == environmentType {
 		rsp = Response{
 			Id:  xid.New().String(),
 			Key: xid.New().String(),
@@ -74,8 +79,14 @@ func (c *Client) Package(pkg *Package, channel class100.Channel, version class10
 	// 发送请求
 	var nuwaRsp *resty.Response
 
-	if nuwaRsp, err = class100.NewResty().SetBody(Request{Package: pkg, Request: class100.Request{Channel: channel}}).
-		SetResult(&rsp).
+	if nuwaRsp, err = class100.NewResty().SetBody(
+		Request{
+			Package: pkg,
+			Request: class100.Request{
+				Channel: environmentType,
+			},
+		},
+	).SetResult(&rsp).
 		Post(c.parseUrl("packages", version)); nil != err {
 		log.WithFields(log.Fields{
 			"nuwa":  c,
