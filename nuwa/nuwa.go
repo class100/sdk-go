@@ -62,7 +62,7 @@ func (c *Client) Package(
 	environment core.Environment,
 	version class100.ApiVersion,
 ) (rsp Response, err error) {
-	if core.EnvironmentTypeSimulation == environment {
+	if core.EnvironmentSimulation == environment {
 		rsp = Response{
 			Id:  xid.New().String(),
 			Key: xid.New().String(),
