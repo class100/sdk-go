@@ -8,6 +8,7 @@ import (
 	`strconv`
 	`time`
 
+	`github.com/class100/core`
 	`github.com/go-playground/validator/v10`
 	log `github.com/sirupsen/logrus`
 	`github.com/storezhang/gox`
@@ -72,7 +73,7 @@ func NewPackage(
 	}
 }
 
-func (pkg *Package) Tag(channel class100.Channel) (tag string, err error) {
+func (pkg *Package) Tag(environment core.Environment) (tag string, err error) {
 	switch pkg.Type {
 	case PackageTypeWindows:
 		tag = class100.TagPackageWindows
@@ -87,7 +88,7 @@ func (pkg *Package) Tag(channel class100.Channel) (tag string, err error) {
 
 		return
 	}
-	tag = fmt.Sprintf("%s-%s", tag, channel)
+	tag = fmt.Sprintf("%s-%s", tag, environment)
 
 	return
 }
