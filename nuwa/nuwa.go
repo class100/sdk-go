@@ -59,10 +59,10 @@ func (c Client) parseUrl(path string, version class100.ApiVersion) (url string) 
 
 func (c *Client) Package(
 	pkg *Package,
-	environmentType core.EnvironmentType,
+	environment core.EnvironmentType,
 	version class100.ApiVersion,
 ) (rsp Response, err error) {
-	if core.EnvironmentTypeSimulation == environmentType {
+	if core.EnvironmentTypeSimulation == environment {
 		rsp = Response{
 			Id:  xid.New().String(),
 			Key: xid.New().String(),
@@ -83,7 +83,7 @@ func (c *Client) Package(
 		Request{
 			Package: pkg,
 			Request: class100.Request{
-				Environment: environmentType,
+				Environment: environment,
 			},
 		},
 	).SetResult(&rsp).
