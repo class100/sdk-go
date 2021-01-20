@@ -30,8 +30,8 @@ type (
 
 		// Endpoint 地址
 		Endpoint string `default:"https://nuwa.class100.com" json:"endpoint"`
-		// environment 开发坏境类型
-		environment core.EnvironmentType
+		// Environment 开发坏境类型
+		Environment core.EnvironmentType
 	}
 
 	// PackageStatus 打包结果
@@ -63,7 +63,7 @@ func (c *Client) Package(
 	pkg *Package,
 	version class100.ApiVersion,
 ) (rsp Response, err error) {
-	if core.EnvironmentTypeSimulation == c.environment {
+	if core.EnvironmentTypeSimulation == c.Environment {
 		rsp = Response{
 			Id:  xid.New().String(),
 			Key: xid.New().String(),
@@ -84,7 +84,7 @@ func (c *Client) Package(
 		Request{
 			Package: pkg,
 			Request: class100.Request{
-				Environment: c.environment,
+				Environment: c.Environment,
 			},
 		},
 	).SetResult(&rsp).
