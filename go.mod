@@ -3,7 +3,7 @@ module github.com/class100/sdk-go
 go 1.15
 
 require (
-	github.com/class100/core v0.0.11
+	github.com/class100/core v0.0.12
 	github.com/go-playground/validator/v10 v10.4.0
 	github.com/go-resty/resty/v2 v2.3.0
 	github.com/mcuadros/go-defaults v1.2.0
