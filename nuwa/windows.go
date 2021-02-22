@@ -11,6 +11,8 @@ import (
 
 // Windows Windows打包信息
 type Windows struct {
+	BasePackager
+
 	// 安装过程中显示的应用程序名称
 	ProductName string `json:"productName" validate:"omitempty"`
 	// 安装过程中显示的版本号

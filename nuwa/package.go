@@ -3,7 +3,6 @@ package nuwa
 import (
 	`encoding/json`
 	`fmt`
-	`os`
 	`path/filepath`
 	`strconv`
 	`time`
@@ -226,27 +225,26 @@ func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 	}
 
 	srcFilename := pkg.srcFileName(rootPath)
-	// 删除源文件，以免影响下一次打包
-	defer func() {
-		if removeErr := os.RemoveAll(srcFilename); nil != removeErr {
-			err = removeErr
-		}
-	}()
-
 	outputFilename := pkg.destFileName(rootPath)
-	defer func() {
-		if removeErr := os.RemoveAll(outputFilename); nil != removeErr {
-			err = removeErr
-		}
-	}()
-
 	packageDir := pkg.packageDir(srcFilename)
-	// 删除打包目录，以免影响下一次打包
-	defer func() {
-		if removeErr := os.RemoveAll(packageDir); nil != removeErr {
-			err = removeErr
-		}
-	}()
+	packager.AddCleanupPaths(srcFilename, outputFilename, packageDir)
+
+	// 初始化打包流程
+	if err = packager.Init(); nil != err {
+		log.WithFields(log.Fields{
+			"name":         pkg.Name(),
+			"type":         pkg.Type,
+			"srcFileType":  pkg.SrcFile.Type,
+			"srcFilename":  pkg.SrcFile.Filename,
+			"destFileType": pkg.DestFile.Type,
+			"destFilename": pkg.DestFile.Filename,
+			"notifyUrl":    pkg.Notify.Url,
+			"error":        err,
+		}).Error("初始化打包流程出错")
+
+		return
+	}
+	log.WithFields(log.Fields{"name": pkg.Name(), "type": pkg.Type, "notifyUrl": pkg.Notify.Url}).Info("初始化打包流程成功")
 
 	// 下载源文件
 	if err = pkg.SrcFile.Download(srcFilename, false); err != nil {
@@ -258,10 +256,7 @@ func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 
 		return
 	}
-	log.WithFields(log.Fields{
-		"type":     pkg.SrcFile.Type,
-		"filename": pkg.SrcFile.Filename,
-	}).Info("下载未打包源文件成功")
+	log.WithFields(log.Fields{"type": pkg.SrcFile.Type, "filename": pkg.SrcFile.Filename}).Info("下载未打包源文件成功")
 
 	// 准备
 	if err = packager.Decode(srcFilename, packageDir); nil != err {
@@ -273,10 +268,7 @@ func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 
 		return
 	}
-	log.WithFields(log.Fields{
-		"type":     pkg.SrcFile.Type,
-		"filename": pkg.SrcFile.Filename,
-	}).Info("解码未打包源文件成功")
+	log.WithFields(log.Fields{"type": pkg.SrcFile.Type, "filename": pkg.SrcFile.Filename}).Info("解码未打包源文件成功")
 
 	// 处理文件替换逻辑
 	if err = pkg.replace(packageDir); nil != err {
@@ -354,10 +346,21 @@ func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 
 		return
 	}
-	log.WithFields(log.Fields{
-		"type":     pkg.DestFile.Type,
-		"filename": pkg.DestFile.Filename,
-	}).Info("上传已打包文件成功")
+	log.WithFields(log.Fields{"type": pkg.DestFile.Type, "filename": pkg.DestFile.Filename}).Info("上传已打包文件成功")
+
+	// 清理打包过程中产生的中间文件，避免下一次打包出问题
+	if err := packager.Cleanup(); nil != err {
+		log.WithFields(log.Fields{
+			"name":         pkg.Name(),
+			"type":         pkg.Type,
+			"srcFileType":  pkg.SrcFile.Type,
+			"srcFilename":  pkg.SrcFile.Filename,
+			"destFileType": pkg.DestFile.Type,
+			"destFilename": pkg.DestFile.Filename,
+			"notifyUrl":    pkg.Notify.Url,
+			"error":        err,
+		}).Warn("清理打包中间文件出错")
+	}
 
 	return
 }

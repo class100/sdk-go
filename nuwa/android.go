@@ -31,6 +31,8 @@ type (
 
 	// Android APK打包信息
 	Android struct {
+		BasePackager
+
 		// Name 应用名称
 		Name map[string]string `json:"name"`
 		// Package 包名
