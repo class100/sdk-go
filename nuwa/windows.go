@@ -13,27 +13,29 @@ import (
 type Windows struct {
 	BasePackager
 
-	// 安装过程中显示的应用程序名称
+	// ProductId 产品的唯一标识
+	ProductId string `json:"productId" validate:"required,start_with_alpha"`
+	// ProductName 安装过程中显示的应用程序名称
 	ProductName string `json:"productName" validate:"omitempty"`
-	// 安装过程中显示的版本号
+	// ProductVersion 安装过程中显示的版本号
 	ProductVersion string `json:"productVersion" validate:"omitempty"`
-	// 应用程序出版人
+	// ProductPublisher 应用程序出版人
 	ProductPublisher string `json:"productPublisher" validate:"omitempty"`
-	// 应用程序网站
-	ProductWebSite string `json:"productWebSite" validate:"omitempty,url"`
-	// 安装目录下Exe名称
-	RunFileName string `json:"runFileName" validate:"omitempty"`
-	// 安装完成后快捷方式的名称
+	// ProductWebsite 应用程序网站
+	ProductWebsite string `json:"productWebsite" validate:"omitempty,url"`
+	// RunFilename 安装目录下Exe名称
+	RunFilename string `json:"runFilename" validate:"omitempty"`
+	// ShortcutName 安装完成后快捷方式的名称
 	ShortcutName string `json:"shortcutName" validate:"omitempty"`
-	// 安装目录文件夹名
+	// InstallDirName 安装目录文件夹名
 	InstallDirName string `json:"installDirName" validate:"omitempty"`
-	// 安装图标
+	// InstallIcon 安装图标
 	InstallIcon transfer.File `json:"installIcon" validate:"omitempty,structonly"`
-	// 卸载图标
+	// UninstallIcon 卸载图标
 	UninstallIcon transfer.File `json:"uninstallIcon" validate:"omitempty,structonly"`
-	// 卸载时的提示语句
+	// UninstallMessage 卸载时的提示语句
 	UninstallMessage string `json:"uninstallMessage" validate:"omitempty"`
-	// 卸载完成是的提示语句
+	// UninstallFinishMessage 卸载完成是的提示语句
 	UninstallFinishMessage string `json:"uninstallFinishMessage" validate:"omitempty"`
 }
 

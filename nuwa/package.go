@@ -13,6 +13,7 @@ import (
 	`github.com/storezhang/gox`
 	`github.com/storezhang/replace`
 	`github.com/storezhang/transfer`
+	`github.com/storezhang/validatorx`
 
 	`github.com/class100/sdk-go`
 )
@@ -218,7 +219,7 @@ func (pkg *Package) packageDir(srcFileName string) (packageDir string) {
 
 func (pkg *Package) Build(rootPath string, packager Packager) (err error) {
 	// 验证基本参数
-	if err = class100.Validate.Struct(pkg); nil != err {
+	if err = validatorx.Validate(pkg); nil != err {
 		err = gox.NewCodeError(class100.ErrorCodeValidate, "数据验证错误", err.(validator.ValidationErrors))
 
 		return

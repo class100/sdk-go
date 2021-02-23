@@ -9,10 +9,12 @@ require (
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/rs/xid v1.2.1
 	github.com/sirupsen/logrus v1.6.0
-	github.com/storezhang/gox v1.2.31
+	github.com/storezhang/gox v1.2.32
 	github.com/storezhang/replace v1.0.7
 	github.com/storezhang/transfer v1.0.5
+	github.com/storezhang/validatorx v1.0.0
 )
 
+// replace github.com/storezhang/validatorx => ../../storezhang/validatorx
 // replace github.com/storezhang/gox => ../../storezhang/gox
 // replace github.com/storezhang/replace => ../../storezhang/replace

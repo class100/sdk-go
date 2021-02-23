@@ -11,6 +11,7 @@ import (
 	`github.com/rs/xid`
 	log `github.com/sirupsen/logrus`
 	`github.com/storezhang/gox`
+	`github.com/storezhang/validatorx`
 
 	`github.com/class100/sdk-go`
 )
@@ -71,6 +72,10 @@ func (c *Client) Package(pkg *Package, environment core.Environment, version cla
 	defaults.SetDefaults(c)
 	// 设置默认值
 	defaults.SetDefaults(pkg)
+	// 确保参数合法
+	if err = validatorx.Validate(pkg); nil != err {
+		return
+	}
 
 	// 发送请求
 	var nuwaRsp *resty.Response
